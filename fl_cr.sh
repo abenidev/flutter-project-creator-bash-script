@@ -120,6 +120,55 @@ mv pubspec_temp.yaml pubspec.yaml
 
 echo "Dependencies successfully added to pubspec.yaml!"
 
+# ------------------------------------adding dev dependencies----------------------
+# Define the source and target files
+DEV_DEPENDENCIES_FILE="../dev_dependencies.txt"
+PUBSPEC_FILE="pubspec.yaml"
+
+# Check if dev_dependencies.txt exists
+if [[ ! -f "$DEV_DEPENDENCIES_FILE" ]]; then
+    echo "Error: '$DEV_DEPENDENCIES_FILE' file not found in the current directory."
+    exit 1
+fi
+
+# Check if pubspec.yaml exists
+if [[ ! -f "$PUBSPEC_FILE" ]]; then
+    echo "Error: '$PUBSPEC_FILE' file not found in the current directory."
+    exit 1
+fi
+
+# Prepare the lines to add
+echo "Reading dependencies from '$DEV_DEPENDENCIES_FILE'..."
+DEPENDENCIES=$(cat "$DEV_DEPENDENCIES_FILE")
+
+# Check if dev_dependencies section exists in pubspec.yaml
+if grep -q "dev_dependencies:" "$PUBSPEC_FILE"; then
+    echo "Adding dependencies to existing 'dev_dependencies' section in '$PUBSPEC_FILE'..."
+    
+    # Add each dependency under dev_dependencies
+    while read -r LINE; do
+        # Ensure the line is not empty
+        if [[ -n "$LINE" ]]; then
+            sed -i "/dev_dependencies:/a \  $LINE" "$PUBSPEC_FILE"
+        fi
+    done <<< "$DEPENDENCIES"
+else
+    echo "No 'dev_dependencies' section found. Adding it to '$PUBSPEC_FILE'..."
+    
+    # Add dev_dependencies section at the end of the file
+    echo "" >> "$PUBSPEC_FILE"
+    echo "dev_dependencies:" >> "$PUBSPEC_FILE"
+    while read -r LINE; do
+        # Ensure the line is not empty
+        if [[ -n "$LINE" ]]; then
+            echo "  $LINE" >> "$PUBSPEC_FILE"
+        fi
+    done <<< "$DEPENDENCIES"
+fi
+
+echo "Dev dependencies successfully added to '$PUBSPEC_FILE'!"
+
+
 # ------------------------------------create a folder in the project called assets and subfolders----------------------
 # Define the root folder and subfolders
 ROOT_FOLDER="assets"
@@ -207,6 +256,47 @@ mv pubspec_temp.yaml pubspec.yaml
 
 echo "Assets folders successfully added to pubspec.yaml!"
 
+# ------------------------------------add the fonts to pubspec.yaml file----------------------
+
+# Define the target file
+TARGET_FILE="pubspec.yaml"
+
+# Define the lines to append
+LINES=(
+    ""
+    "  fonts:"
+    "    - family: Poppins"
+    "      fonts:"
+    "        - asset: assets/fonts/Poppins-Regular.ttf"
+    "        - asset: assets/fonts/Poppins-Italic.ttf"
+    "          style: italic"
+    "    - family: Madimi"
+    "      fonts:"
+    "        - asset: assets/fonts/MadimiOne-Regular.ttf"
+    ""
+    "# native_splash"
+    "# dart run flutter_native_splash:create"
+    "flutter_native_splash:"
+    "  color: '#03346E'"
+    "  color_dark: '#201E43'"
+    "  android_12:"
+    "    color: '#03346E'"
+    "    color_dark: '#201E43'"
+)
+
+# Check if the target file exists
+if [[ ! -f "$TARGET_FILE" ]]; then
+    echo "Error: '$TARGET_FILE' file not found in the current directory."
+    exit 1
+fi
+
+# Append the lines to the file
+echo "Appending font configuration to '$TARGET_FILE'..."
+for LINE in "${LINES[@]}"; do
+    echo "$LINE" >> "$TARGET_FILE"
+done
+
+echo "Font configuration successfully added to '$TARGET_FILE'!"
 
 # ------------------------------------copy fonts from the fonts directory to assets/fonts----------------------
 
@@ -237,6 +327,256 @@ else
     echo "Error: Failed to copy font files."
     exit 1
 fi
+
+# ------------------------------------creating sub directories under the lib folder----------------------
+
+# Define the target directory and the new subdirectories to create
+TARGET_DIR="lib"
+SUBDIRS=("constants" "helpers" "models" "providers" "screens" "utils" "widgets")
+
+# Check if the target directory exists
+if [[ ! -d "$TARGET_DIR" ]]; then
+    echo "Error: The 'lib' directory does not exist in the current project."
+    exit 1
+fi
+
+# Create the subdirectories
+echo "Creating directories under '$TARGET_DIR'..."
+for SUBDIR in "${SUBDIRS[@]}"; do
+    SUBDIR_PATH="$TARGET_DIR/$SUBDIR"
+    if [[ -d "$SUBDIR_PATH" ]]; then
+        echo "Directory '$SUBDIR_PATH' already exists. Skipping."
+    else
+        mkdir "$SUBDIR_PATH"
+        echo "Created directory: $SUBDIR_PATH"
+    fi
+done
+
+echo "All specified directories have been created successfully!"
+
+# ------------------------------------modify the read me file----------------------
+
+# Define the additional lines to add to README.md
+NEW_LINES=(
+    "## Table of Contents"
+    "1. [Introduction](#introduction)"
+    "2. [Features](#features)"
+    "3. [Installation](#installation)"
+    "4. [Usage](#usage)"
+    "5. [Contributing](#contributing)"
+    "6. [License](#license)"
+)
+
+# Check if README.md exists
+if [[ ! -f "README.md" ]]; then
+    echo "Error: 'README.md' file not found in the current directory."
+    exit 1
+fi
+
+# Backup the original README.md
+cp README.md README_backup.md
+echo "Backup created: README_backup.md"
+
+# Read the first line of README.md
+FIRST_LINE=$(head -n 1 README.md)
+
+# Write the first line back to README.md
+echo "$FIRST_LINE" > README.md
+
+# Append the new lines to README.md
+echo "Adding new content to README.md..."
+for LINE in "${NEW_LINES[@]}"; do
+    echo "$LINE" >> README.md
+done
+
+echo "README.md successfully updated!" 
+
+# ------------------------------------add files to the lib/constants directory----------------------
+
+# Define the target directory and the files to be created
+TARGET_DIR="lib/constants"
+FILES=(
+    "bools.dart"
+    "colors.dart"
+    "app_consts.dart"
+    "dates.dart"
+    "nums.dart"
+    "strings.dart"
+    "styles.dart"
+    "hive_consts.dart"
+    "shared_prefs_consts.dart"
+)
+
+# Check if the target directory exists
+if [[ ! -d "$TARGET_DIR" ]]; then
+    echo "Error: The 'lib/constants' directory does not exist."
+    echo "Creating 'lib/constants' directory..."
+    mkdir -p "$TARGET_DIR"
+    echo "'lib/constants' directory created."
+fi
+
+# Create the specified files
+echo "Creating files under '$TARGET_DIR'..."
+for FILE in "${FILES[@]}"; do
+    FILE_PATH="$TARGET_DIR/$FILE"
+    if [[ -f "$FILE_PATH" ]]; then
+        echo "File '$FILE_PATH' already exists. Skipping."
+    else
+        touch "$FILE_PATH"
+        echo "Created file: $FILE_PATH"
+    fi
+done
+
+echo "All specified files have been created successfully!"
+
+# ------------------------------------add the required lines to lib/constants/nums.dart file----------------------
+
+# Define the target file
+TARGET_FILE="lib/constants/nums.dart"
+
+# Define the lines to add
+LINES=(
+    "//ad"
+    "const int kAdShowDelayInSeconds = 40;"
+    "const int kClicksDelayCountForAd = 3;"
+)
+
+# Check if the target directory exists
+if [[ ! -d "lib/constants" ]]; then
+    echo "Error: The 'lib/constants' directory does not exist."
+    echo "Please create the directory structure first."
+    exit 1
+fi
+
+# Create the target file if it doesn't exist
+if [[ ! -f "$TARGET_FILE" ]]; then
+    echo "File '$TARGET_FILE' does not exist. Creating it..."
+    touch "$TARGET_FILE"
+    echo "Created file: $TARGET_FILE"
+fi
+
+# Append the lines to the file
+echo "Adding lines to '$TARGET_FILE'..."
+for LINE in "${LINES[@]}"; do
+    echo "$LINE" >> "$TARGET_FILE"
+done
+
+echo "Lines successfully added to '$TARGET_FILE'!"
+
+# ------------------------------------add the required lines to lib/constants/strings.dart file----------------------
+
+# Define the target file
+TARGET_FILE="lib/constants/strings.dart"
+
+# Define the lines to add
+LINES=(
+    "const String kStrCommonError = 'Something went wrong, please reopen the application.';"
+    "//TODO: fill in these informations"
+    "const String supportEmail = 'samethdevs@gmail.com';"
+    "const String appPackageName = '';"
+    "const String appName = '';"
+    "const List<String> appFeedbackReciepients = [supportEmail];"
+    "const String websiteAddress = 'https://abeni.dev/';"
+)
+
+# Check if the target directory exists
+if [[ ! -d "lib/constants" ]]; then
+    echo "Error: The 'lib/constants' directory does not exist."
+    echo "Please create the directory structure first."
+    exit 1
+fi
+
+# Create the target file if it doesn't exist
+if [[ ! -f "$TARGET_FILE" ]]; then
+    echo "File '$TARGET_FILE' does not exist. Creating it..."
+    touch "$TARGET_FILE"
+    echo "Created file: $TARGET_FILE"
+fi
+
+# Append the lines to the file
+echo "Adding lines to '$TARGET_FILE'..."
+for LINE in "${LINES[@]}"; do
+    echo "$LINE" >> "$TARGET_FILE"
+done
+
+echo "Lines successfully added to '$TARGET_FILE'!"
+
+
+
+# ------------------------------------add the required lines to lib/constants/styles.dart file----------------------
+
+# Define the target file
+TARGET_FILE="lib/constants/styles.dart"
+
+# Define the lines to add
+LINES=(
+    "import 'package:flutter/material.dart';"
+    "import 'package:flutter_screenutil/flutter_screenutil.dart';"
+    "TextStyle kAppBarTitleStyle = TextStyle(fontSize: 19.3.sp);"
+)
+
+# Check if the target directory exists
+if [[ ! -d "lib/constants" ]]; then
+    echo "Error: The 'lib/constants' directory does not exist."
+    echo "Please create the directory structure first."
+    exit 1
+fi
+
+# Create the target file if it doesn't exist
+if [[ ! -f "$TARGET_FILE" ]]; then
+    echo "File '$TARGET_FILE' does not exist. Creating it..."
+    touch "$TARGET_FILE"
+    echo "Created file: $TARGET_FILE"
+fi
+
+# Append the lines to the file
+echo "Adding lines to '$TARGET_FILE'..."
+for LINE in "${LINES[@]}"; do
+    echo "$LINE" >> "$TARGET_FILE"
+done
+
+echo "Lines successfully added to '$TARGET_FILE'!"
+
+
+
+
+# ------------------------------------add the required lines to lib/constants/shared_prefs_consts.dart file----------------------
+
+# Define the target file
+TARGET_FILE="lib/constants/shared_prefs_consts.dart"
+
+# Define the lines to add
+LINES=(
+    "const String kIsIntroShownKey = 'isIntroShown';"
+    "const String kIsFirebaseInited = 'kIsFirebaseInited';"
+    "const String kIsPremiumModalShown = 'kIsPremiumModalShown';"
+    "const String kAdClickCountPref = 'kAdClickCountPref';"
+    "const String kLastAdViewTimestamp = 'kLastAdViewTimestamp';"
+    "const String kLastAdClickTimestamp = 'kLastAdClickTimestamp';"
+)
+
+# Check if the target directory exists
+if [[ ! -d "lib/constants" ]]; then
+    echo "Error: The 'lib/constants' directory does not exist."
+    echo "Please create the directory structure first."
+    exit 1
+fi
+
+# Create the target file if it doesn't exist
+if [[ ! -f "$TARGET_FILE" ]]; then
+    echo "File '$TARGET_FILE' does not exist. Creating it..."
+    touch "$TARGET_FILE"
+    echo "Created file: $TARGET_FILE"
+fi
+
+# Append the lines to the file
+echo "Adding lines to '$TARGET_FILE'..."
+for LINE in "${LINES[@]}"; do
+    echo "$LINE" >> "$TARGET_FILE"
+done
+
+echo "Lines successfully added to '$TARGET_FILE'!"
+
 
 # ------------------------------------run pub get to get dependencies----------------------
 # Run flutter pub get to fetch the packages
