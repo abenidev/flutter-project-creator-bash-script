@@ -68,33 +68,90 @@ echo "Comments removed from pubspec.yaml up to line 60."
 
 # ------------------------------------adding dependencies-----------------------------------
 
-# Add packages to the pubspec.yaml
-echo "Adding packages to the Flutter project..."
+# Define the path to the dependencies file
+DEPENDENCIES_FILE="../dependencies.txt"
 
-PACKAGES=(
-  "flutter_riverpod:^2.6.1"
-#   "nb_utils:^7.0.7"
-#   "flex_color_scheme:^8.0.2"
-#   "firebase_core:^3.8.1"
-#   "firebase_analytics:^11.3.6"
-#   "firebase_crashlytics:^4.2.0"
-#   "firebase_messaging:^15.1.6"
-)
-
-for PACKAGE in "${PACKAGES[@]}"; do
-    flutter pub add "$PACKAGE"
-done
-
-# Check if packages were added successfully
-if [[ $? -eq 0 ]]; then
-    echo "Packages added successfully!"
-else
-    echo "Error: Failed to add packages."
+# Check if the dependencies file exists
+if [[ ! -f "$DEPENDENCIES_FILE" ]]; then
+    echo "Error: 'dependencies.txt' file not found in the script's directory."
     exit 1
 fi
 
-# Run flutter pub get to fetch the packages
-flutter pub get
+# Check if pubspec.yaml exists
+if [[ ! -f "pubspec.yaml" ]]; then
+    echo "Error: 'pubspec.yaml' file not found in the current directory."
+    exit 1
+fi
+
+# Backup the original pubspec.yaml
+cp pubspec.yaml pubspec_backup.yaml
+echo "Backup created: pubspec_backup.yaml"
+
+# Add dependencies to pubspec.yaml
+echo "Adding dependencies to pubspec.yaml..."
+awk -v deps_file="$DEPENDENCIES_FILE" '
+BEGIN {
+    while ((getline dep < deps_file) > 0) {
+        # Trim leading and trailing whitespace
+        gsub(/^[ \t]+|[ \t]+$/, "", dep)
+        if (dep != "") {
+            deps_list[dep] = dep
+        }
+    }
+}
+{
+    print $0
+    if ($0 ~ /^dependencies:/) {
+        for (dep in deps_list) {
+            print "  " dep
+        }
+        printed = 1
+    }
+}
+END {
+    if (!printed) {
+        print "dependencies:"
+        for (dep in deps_list) {
+            print "  " dep
+        }
+    }
+}' pubspec.yaml > pubspec_temp.yaml
+
+# Replace the original file with the updated file
+mv pubspec_temp.yaml pubspec.yaml
+
+echo "Dependencies successfully added to pubspec.yaml!"
+
+
+# !
+# # Add packages to the pubspec.yaml
+# echo "Adding packages to the Flutter project..."
+
+# PACKAGES=(
+#   "flutter_riverpod:^2.6.1"
+# #   "nb_utils:^7.0.7"
+# #   "flex_color_scheme:^8.0.2"
+# #   "firebase_core:^3.8.1"
+# #   "firebase_analytics:^11.3.6"
+# #   "firebase_crashlytics:^4.2.0"
+# #   "firebase_messaging:^15.1.6"
+# )
+
+# for PACKAGE in "${PACKAGES[@]}"; do
+#     flutter pub add "$PACKAGE"
+# done
+
+# # Check if packages were added successfully
+# if [[ $? -eq 0 ]]; then
+#     echo "Packages added successfully!"
+# else
+#     echo "Error: Failed to add packages."
+#     exit 1
+# fi
+
+# # Run flutter pub get to fetch the packages
+# flutter pub get
+# !
 
 # ------------------------------------create a folder in the project called assets and subfolders----------------------
 # Define the root folder and subfolders
@@ -188,11 +245,11 @@ echo "Assets folders successfully added to pubspec.yaml!"
 
 
 # Define the source and destination directories
-SOURCE_DIR="fonts"
-DEST_DIR="$PROJECT_NAME/assets/fonts"
+SOURCE_DIR="../fonts"
+DEST_DIR="assets/fonts"
 
 # Navigate back out of the project directory
-cd .. || exit
+# cd .. || exit
 
 # Check if the source 'fonts' folder exists
 if [[ ! -d "$SOURCE_DIR" ]]; then
@@ -211,8 +268,8 @@ echo "Copying files from '$SOURCE_DIR' to '$DEST_DIR'..."
 cp -r "$SOURCE_DIR/"* "$DEST_DIR/"
 
 # Navigate to the project directory
-cd "$PROJECT_NAME" || exit
-pwd
+# cd "$PROJECT_NAME" || exit
+# pwd
 
 # Verify if the files were copied
 if [[ $? -eq 0 ]]; then
@@ -221,3 +278,50 @@ else
     echo "Error: Failed to copy font files."
     exit 1
 fi
+
+# ------------------------------------run pub get to get dependencies----------------------
+# Run flutter pub get to fetch the packages
+flutter pub get
+
+
+#! ------------------------------------configure firebase project----------------------
+# Function to prompt the user for Firebase configuration
+# configure_firebase() {
+#     echo "Do you want to configure Firebase for your Flutter project? (yes/no)"
+#     read -r user_input
+
+#     case $user_input in
+#         yes|YES|y|Y)
+#             echo "Configuring Firebase using FlutterFire CLI..."
+            
+#             # Check if FlutterFire CLI is installed
+#             if ! command -v flutterfire &> /dev/null; then
+#                 echo "Error: FlutterFire CLI is not installed."
+#                 echo "Please install it using the following command:"
+#                 echo "dart pub global activate flutterfire_cli"
+#                 exit 1
+#             fi
+
+#             # Run the FlutterFire configuration command
+#             flutterfire configure
+
+#             # Check if the command succeeded
+#             if [[ $? -eq 0 ]]; then
+#                 echo "Firebase successfully configured for your Flutter project!"
+#             else
+#                 echo "Error: Failed to configure Firebase. Please check the logs above."
+#                 exit 1
+#             fi
+#             ;;
+#         no|NO|n|N)
+#             echo "Skipping Firebase configuration."
+#             ;;
+#         *)
+#             echo "Invalid input. Please answer 'yes' or 'no'."
+#             configure_firebase # Recursively call the function until valid input is given
+#             ;;
+#     esac
+# }
+
+# # Run the Firebase configuration function
+# configure_firebase
