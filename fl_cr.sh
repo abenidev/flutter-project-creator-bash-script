@@ -11,8 +11,6 @@
 # [√] Connected device (3 available)
 # [√] Network resources
 
-# • No issues found!
-
 # ------------------------------------creating project-----------------------------------
 # Prompt the user for the project name
 read -p "Enter the project name: " PROJECT_NAME
@@ -122,37 +120,6 @@ mv pubspec_temp.yaml pubspec.yaml
 
 echo "Dependencies successfully added to pubspec.yaml!"
 
-
-# !
-# # Add packages to the pubspec.yaml
-# echo "Adding packages to the Flutter project..."
-
-# PACKAGES=(
-#   "flutter_riverpod:^2.6.1"
-# #   "nb_utils:^7.0.7"
-# #   "flex_color_scheme:^8.0.2"
-# #   "firebase_core:^3.8.1"
-# #   "firebase_analytics:^11.3.6"
-# #   "firebase_crashlytics:^4.2.0"
-# #   "firebase_messaging:^15.1.6"
-# )
-
-# for PACKAGE in "${PACKAGES[@]}"; do
-#     flutter pub add "$PACKAGE"
-# done
-
-# # Check if packages were added successfully
-# if [[ $? -eq 0 ]]; then
-#     echo "Packages added successfully!"
-# else
-#     echo "Error: Failed to add packages."
-#     exit 1
-# fi
-
-# # Run flutter pub get to fetch the packages
-# flutter pub get
-# !
-
 # ------------------------------------create a folder in the project called assets and subfolders----------------------
 # Define the root folder and subfolders
 ROOT_FOLDER="assets"
@@ -243,13 +210,9 @@ echo "Assets folders successfully added to pubspec.yaml!"
 
 # ------------------------------------copy fonts from the fonts directory to assets/fonts----------------------
 
-
 # Define the source and destination directories
 SOURCE_DIR="../fonts"
 DEST_DIR="assets/fonts"
-
-# Navigate back out of the project directory
-# cd .. || exit
 
 # Check if the source 'fonts' folder exists
 if [[ ! -d "$SOURCE_DIR" ]]; then
@@ -266,10 +229,6 @@ fi
 # Copy files from 'fonts' directory to 'assets/fonts'
 echo "Copying files from '$SOURCE_DIR' to '$DEST_DIR'..."
 cp -r "$SOURCE_DIR/"* "$DEST_DIR/"
-
-# Navigate to the project directory
-# cd "$PROJECT_NAME" || exit
-# pwd
 
 # Verify if the files were copied
 if [[ $? -eq 0 ]]; then
