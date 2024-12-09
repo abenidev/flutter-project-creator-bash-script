@@ -649,6 +649,11 @@ fi
 echo "abi filters added to '$BUILD_GRADLE_FILE'."
 
 
+# ------------------------------------generate a release key----------------------
+
+keytool -genkey -v -keystore android/upload-keystore.jks -keyalg RSA \
+        -keysize 2048 -validity 10000 -alias upload
+
 
 # ------------------------------------create key.properties file----------------------
 
