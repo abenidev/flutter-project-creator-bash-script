@@ -578,6 +578,228 @@ done
 echo "Lines successfully added to '$TARGET_FILE'!"
 
 
+# ------------------------modify compile, target and min sdk in android/app/build.gradle--------------
+
+# Define the target file
+BUILD_GRADLE_FILE="android/app/build.gradle"
+
+# Define the SDK versions
+COMPILE_SDK=35
+TARGET_SDK=35
+MIN_SDK=21
+
+# Check if the target file exists
+if [[ ! -f "$BUILD_GRADLE_FILE" ]]; then
+    echo "Error: '$BUILD_GRADLE_FILE' file not found in the current directory."
+    exit 1
+fi
+
+# Replace 'flutter.compileSdkVersion' with the actual compileSdkVersion
+if grep -q "flutter\.compileSdkVersion" "$BUILD_GRADLE_FILE"; then
+    sed -i "s/flutter\.compileSdkVersion/$COMPILE_SDK/" "$BUILD_GRADLE_FILE"
+    echo "Replaced 'flutter.compileSdkVersion' with $COMPILE_SDK."
+else
+    echo "Error: 'flutter.compileSdkVersion' not found in '$BUILD_GRADLE_FILE'."
+fi
+
+# Replace 'flutter.targetSdkVersion' with the actual targetSdkVersion
+if grep -q "flutter\.targetSdkVersion" "$BUILD_GRADLE_FILE"; then
+    sed -i "s/flutter\.targetSdkVersion/$TARGET_SDK/" "$BUILD_GRADLE_FILE"
+    echo "Replaced 'flutter.targetSdkVersion' with $TARGET_SDK."
+else
+    echo "Error: 'flutter.targetSdkVersion' not found in '$BUILD_GRADLE_FILE'."
+fi
+
+# Replace 'flutter.minSdkVersion' with the actual minSdkVersion
+if grep -q "flutter\.minSdkVersion" "$BUILD_GRADLE_FILE"; then
+    sed -i "s/flutter\.minSdkVersion/$MIN_SDK/" "$BUILD_GRADLE_FILE"
+    echo "Replaced 'flutter.minSdkVersion' with $MIN_SDK."
+else
+    echo "Error: 'flutter.minSdkVersion' not found in '$BUILD_GRADLE_FILE'."
+fi
+
+echo "Flutter SDK placeholders replaced in '$BUILD_GRADLE_FILE'."
+
+
+# ------------------------------------adds abi filters to android/app/build.gradle-----------------
+
+# Define the target file
+BUILD_GRADLE_FILE="android/app/build.gradle"
+
+# Define the lines to add
+NEW_LINES=$(cat <<EOF
+        ndk.abiFilters 'armeabi-v7a', 'arm64-v8a','x86_64'
+EOF
+)
+
+# Check if the target file exists
+if [[ ! -f "$BUILD_GRADLE_FILE" ]]; then
+    echo "Error: '$BUILD_GRADLE_FILE' file not found in the current directory."
+    exit 1
+fi
+
+# Locate the line containing "versionName = flutter.versionName" and add new lines below it
+if grep -q "versionName = flutter.versionName" "$BUILD_GRADLE_FILE"; then
+    sed -i "/versionName = flutter.versionName/a $NEW_LINES" "$BUILD_GRADLE_FILE"
+    echo "Added new lines below 'versionName = flutter.versionName' in '$BUILD_GRADLE_FILE'."
+else
+    echo "Error: 'versionName = flutter.versionName' not found in '$BUILD_GRADLE_FILE'."
+fi
+
+echo "abi filters added to '$BUILD_GRADLE_FILE'."
+
+
+
+# ------------------------------------create key.properties file----------------------
+
+# Define the target file path
+KEY_PROPERTIES_FILE="android/key.properties"
+
+# Define the content to be written to the file
+KEY_PROPERTIES_CONTENT=$(cat <<EOF
+storePassword=
+keyPassword=
+keyAlias=upload
+storeFile=C:\\Users\\AB\\Desktop\\proj\\Flutter_Apps\\unity_ads_status\\android\\upload-keystore.jks
+EOF
+)
+
+# Check if the android directory exists
+if [[ ! -d "android" ]]; then
+    echo "Error: 'android' directory not found in the current directory."
+    exit 1
+fi
+
+# Create the key.properties file and write the content
+echo "$KEY_PROPERTIES_CONTENT" > "$KEY_PROPERTIES_FILE"
+
+# Confirm the creation of the file
+if [[ -f "$KEY_PROPERTIES_FILE" ]]; then
+    echo "Successfully created 'key.properties' in the 'android' directory."
+else
+    echo "Error: Failed to create 'key.properties'."
+fi
+
+echo "key.properties file created."
+
+
+# ---------------------------------get the key.properties inside the app/build.gradle----------
+
+# Define the target file
+BUILD_GRADLE_FILE="android/app/build.gradle"
+
+# Define the keystore properties lines to be added
+KEYSTORE_LINES=$(cat <<'EOF'
+def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file("key.properties")
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+EOF
+)
+
+# Check if the target file exists
+if [[ ! -f "$BUILD_GRADLE_FILE" ]]; then
+    echo "Error: '$BUILD_GRADLE_FILE' file not found in the current directory."
+    exit 1
+fi
+
+# Check if the lines are already present
+if grep -q "keystoreProperties = new Properties()" "$BUILD_GRADLE_FILE"; then
+    echo "'keystoreProperties' definition already exists in '$BUILD_GRADLE_FILE'."
+    exit 0
+fi
+
+# Add the lines after the plugins block
+TEMP_FILE=$(mktemp)
+awk -v insert="$KEYSTORE_LINES" '
+    /plugins \{/ { found=1 }
+    found && /^\}/ { print; print insert; found=0; next }
+    { print }
+' "$BUILD_GRADLE_FILE" > "$TEMP_FILE" && mv "$TEMP_FILE" "$BUILD_GRADLE_FILE"
+
+# Confirm the operation
+if grep -q "keystoreProperties = new Properties()" "$BUILD_GRADLE_FILE"; then
+    echo "Successfully added 'keystoreProperties' definition to '$BUILD_GRADLE_FILE'."
+else
+    echo "Error: Failed to add 'keystoreProperties' definition to '$BUILD_GRADLE_FILE'."
+fi
+
+# !
+# ---------------------------------add signingConfigs to android/app/build.gradle file----------
+
+# Define the target file
+BUILD_GRADLE_FILE="android/app/build.gradle"
+
+# Define the signingConfigs block to be added under defaultConfig
+SIGNING_CONFIGS_BLOCK=$(cat <<'EOF'
+
+    signingConfigs { 
+        release {
+            keyAlias keystoreProperties['keyAlias']
+            keyPassword keystoreProperties['keyPassword']
+            storeFile keystoreProperties['storeFile'] ? file(keystoreProperties['storeFile']) : null
+            storePassword keystoreProperties['storePassword']
+        }
+    }
+EOF
+)
+
+# Check if the target file exists
+if [[ ! -f "$BUILD_GRADLE_FILE" ]]; then
+    echo "Error: '$BUILD_GRADLE_FILE' file not found in the current directory."
+    exit 1
+fi
+
+# Check if the signingConfigs block is already present under defaultConfig
+if grep -q "signingConfigs {" "$BUILD_GRADLE_FILE"; then
+    echo "'signingConfigs' block already exists under defaultConfig in '$BUILD_GRADLE_FILE'."
+    exit 0
+fi
+
+# Insert the signingConfigs block under defaultConfig
+TEMP_FILE=$(mktemp)
+
+awk -v insert="$SIGNING_CONFIGS_BLOCK" '
+/defaultConfig {/ { found=1 }
+found && /}/ {
+    print
+    print insert
+    found=0
+    next
+}
+{ print }
+' "$BUILD_GRADLE_FILE" > "$TEMP_FILE" && mv "$TEMP_FILE" "$BUILD_GRADLE_FILE"
+
+# Confirm the operation
+if grep -q "signingConfigs" "$BUILD_GRADLE_FILE"; then
+    echo "Successfully added 'signingConfigs' block under 'defaultConfig' in '$BUILD_GRADLE_FILE'."
+else
+    echo "Error: Failed to add 'signingConfigs' block under 'defaultConfig' in '$BUILD_GRADLE_FILE'."
+fi
+
+# ---------------------------------set storeconfigs.release in app/build.gradle----------
+
+# Define the target file
+BUILD_GRADLE_FILE="android/app/build.gradle"
+
+# Check if the target file exists
+if [[ ! -f "$BUILD_GRADLE_FILE" ]]; then
+    echo "Error: '$BUILD_GRADLE_FILE' file not found in the current directory."
+    exit 1
+fi
+
+# Replace signingConfigs.debug with signingConfigs.release
+sed -i 's/signingConfigs\.debug/signingConfigs\.release/g' "$BUILD_GRADLE_FILE"
+
+# Confirm the operation
+if grep -q "signingConfigs.release" "$BUILD_GRADLE_FILE"; then
+    echo "Successfully replaced 'signingConfigs.debug' with 'signingConfigs.release' in '$BUILD_GRADLE_FILE'."
+else
+    echo "Error: 'signingConfigs.release' was not found in '$BUILD_GRADLE_FILE'."
+fi
+
+
 # ------------------------------------run pub get to get dependencies----------------------
 # Run flutter pub get to fetch the packages
 flutter pub get
