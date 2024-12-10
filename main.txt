@@ -2,7 +2,6 @@ import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:loading_overlay/loading_overlay.dart';
 import 'package:logger/logger.dart';
 import 'package:nb_utils/nb_utils.dart';
 
@@ -32,28 +31,22 @@ class MyApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    bool isAppLoading = ref.watch(isAppLoadingProvider);
-
-    return LoadingOverlay(
-      isLoading: isAppLoading,
-      progressIndicator: const CircularProgressIndicator(color: Colors.teal),
-      child: ScreenUtilInit(
-        designSize: const Size(360, 690),
-        minTextAdapt: true,
-        splitScreenMode: true,
-        builder: (_, child) {
-          return MaterialApp(
-            debugShowCheckedModeBanner: false,
-            title: appName,
-            // ignore: deprecated_member_use
-            useInheritedMediaQuery: true,
-            theme: FlexColorScheme.light(scheme: FlexScheme.orangeM3, useMaterial3: true, fontFamily: 'Poppins').toTheme,
-            darkTheme: FlexColorScheme.dark(scheme: FlexScheme.orangeM3, useMaterial3: true, fontFamily: 'Poppins').toTheme,
-            themeMode: ThemeMode.system,
-            home: const Root(),
-          );
-        },
-      ),
+    return ScreenUtilInit(
+      designSize: const Size(360, 690),
+      minTextAdapt: true,
+      splitScreenMode: true,
+      builder: (_, child) {
+        return MaterialApp(
+          debugShowCheckedModeBanner: false,
+          title: appName,
+          // ignore: deprecated_member_use
+          useInheritedMediaQuery: true,
+          theme: FlexColorScheme.light(scheme: FlexScheme.orangeM3, useMaterial3: true, fontFamily: 'Poppins').toTheme,
+          darkTheme: FlexColorScheme.dark(scheme: FlexScheme.orangeM3, useMaterial3: true, fontFamily: 'Poppins').toTheme,
+          themeMode: ThemeMode.system,
+          home: const Root(),
+        );
+      },
     );
   }
 }
