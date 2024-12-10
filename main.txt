@@ -1,0 +1,120 @@
+import 'package:flex_color_scheme/flex_color_scheme.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:loading_overlay/loading_overlay.dart';
+import 'package:logger/logger.dart';
+import 'package:nb_utils/nb_utils.dart';
+
+import 'package:----/constants/strings.dart';
+import 'package:----/helpers/local_notification_helper.dart';
+
+Logger logger = Logger();
+
+final isAppLoadingProvider = StateProvider<bool>((ref) {
+  return false;
+});
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  //nb_utils shared pref initialization
+  await initialize();
+
+  runApp(
+    const ProviderScope(
+      child: MyApp(),
+    ),
+  );
+}
+
+class MyApp extends ConsumerWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    bool isAppLoading = ref.watch(isAppLoadingProvider);
+
+    return LoadingOverlay(
+      isLoading: isAppLoading,
+      progressIndicator: const CircularProgressIndicator(color: Colors.teal),
+      child: ScreenUtilInit(
+        designSize: const Size(360, 690),
+        minTextAdapt: true,
+        splitScreenMode: true,
+        builder: (_, child) {
+          return MaterialApp(
+            debugShowCheckedModeBanner: false,
+            title: appName,
+            // ignore: deprecated_member_use
+            useInheritedMediaQuery: true,
+            theme: FlexColorScheme.light(scheme: FlexScheme.orangeM3, useMaterial3: true, fontFamily: 'Poppins').toTheme,
+            darkTheme: FlexColorScheme.dark(scheme: FlexScheme.orangeM3, useMaterial3: true, fontFamily: 'Poppins').toTheme,
+            themeMode: ThemeMode.system,
+            home: const Root(),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class Root extends ConsumerStatefulWidget {
+  const Root({super.key});
+
+  @override
+  ConsumerState<ConsumerStatefulWidget> createState() => _RootState();
+}
+
+class _RootState extends ConsumerState<Root> with TickerProviderStateMixin {
+  //Anim
+  late AnimationController controller;
+  Tween<double> tween = Tween(begin: 0.8, end: 1);
+
+  @override
+  void initState() {
+    super.initState();
+    //Anim
+    controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 1200));
+    controller.repeat(reverse: true);
+
+    afterBuildCreated(() {
+      _init();
+    });
+  }
+
+  @override
+  dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  _init() async {
+    //localNotif
+    LocalNotificationHelper.requestPermission();
+    LocalNotificationHelper.initializeNotif();
+
+    //TODO: implement your initial root executions
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    bool isDarkMode = MediaQuery.of(context).platformBrightness == Brightness.dark;
+
+    return Scaffold(
+      backgroundColor: isDarkMode ? const Color(0xff803D3B) : const Color(0xff803D3B),
+      body: Container(
+        decoration: const BoxDecoration(),
+        child: Center(
+          child: ScaleTransition(
+            scale: tween.animate(CurvedAnimation(parent: controller, curve: Curves.ease)),
+            child: Image(
+              height: 110.h,
+              width: 110.w,
+              image: const AssetImage('assets/icon/icon_round.png'),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}

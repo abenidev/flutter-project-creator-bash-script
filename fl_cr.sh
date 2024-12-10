@@ -805,6 +805,325 @@ else
 fi
 
 
+# --------------------------------- copy all helper files to lib/helpers ----------
+
+# Define source and destination directories
+SOURCE_HELPER_DIR="../helpers"
+DESTINATION_HELPER_DIR="lib/helpers"
+
+# Check if source directory exists
+if [[ ! -d "$SOURCE_HELPER_DIR" ]]; then
+    echo "Error: Source directory 'helper' does not exist in the current location."
+    exit 1
+fi
+
+# Create destination directory if it doesn't exist
+if [[ ! -d "$DESTINATION_HELPER_DIR" ]]; then
+    mkdir -p "$DESTINATION_HELPER_DIR"
+    echo "Created destination directory: $DESTINATION_HELPER_DIR"
+fi
+
+# Copy files from source to destination
+cp -r "$SOURCE_HELPER_DIR/"* "$DESTINATION_HELPER_DIR/"
+
+# Confirm the operation
+if [[ $? -eq 0 ]]; then
+    echo "Successfully copied all files from '$SOURCE_HELPER_DIR' to '$DESTINATION_HELPER_DIR'."
+else
+    echo "Error: Failed to copy files from '$SOURCE_HELPER_DIR' to '$DESTINATION_HELPER_DIR'."
+fi
+
+# --------------------------------- change file extensions to .dart of files inside lib/helpers ----------
+
+# Define the target directory
+TARGET_DIR="lib/helpers"
+
+# Check if the target directory exists
+if [[ ! -d "$TARGET_DIR" ]]; then
+    echo "Error: Directory '$TARGET_DIR' does not exist."
+    exit 1
+fi
+
+# Loop through all files in the target directory
+for file in "$TARGET_DIR"/*; do
+    # Skip directories and process only files
+    if [[ -f "$file" ]]; then
+        # Get the file's base name without extension
+        base_name=$(basename "$file")
+        
+        # Get the new name with .dart extension
+        new_file="${TARGET_DIR}/${base_name%.*}.dart"
+
+        # Rename the file
+        mv "$file" "$new_file"
+        echo "Renamed '$file' to '$new_file'"
+    fi
+done
+
+# Completion message
+echo "All files in '$TARGET_DIR' have been renamed to have a .dart extension."
+
+# ------------------------------------replace every thing inside main.dart with contents from main.txt ----------------------
+
+# Define the source file and target file
+SOURCE_FILE="../main.txt"
+TARGET_FILE="lib/main.dart"
+
+# Check if the source file exists
+if [[ ! -f "$SOURCE_FILE" ]]; then
+    echo "Error: Source file '$SOURCE_FILE' does not exist."
+    exit 1
+fi
+
+# Check if the target file exists
+if [[ ! -f "$TARGET_FILE" ]]; then
+    echo "Error: Target file '$TARGET_FILE' does not exist."
+    exit 1
+fi
+
+# Replace the contents of the target file with the source file's contents
+cp "$SOURCE_FILE" "$TARGET_FILE"
+
+# Confirm the operation
+if [[ $? -eq 0 ]]; then
+    echo "Successfully replaced the contents of '$TARGET_FILE' with the contents of '$SOURCE_FILE'."
+else
+    echo "Error: Failed to replace the contents of '$TARGET_FILE'."
+fi
+
+# ------------------------------------ copy paste icon place holder file to assets ----------------------
+
+# Define the source file and destination directory
+SOURCE_FILE="../icon_round.png"
+DESTINATION_DIR="assets/icon"
+
+# Check if the source file exists
+if [[ ! -f "$SOURCE_FILE" ]]; then
+    echo "Error: Source file 'icon_round.png' does not exist in the current directory."
+    exit 1
+fi
+
+# Create the destination directory if it doesn't exist
+if [[ ! -d "$DESTINATION_DIR" ]]; then
+    mkdir -p "$DESTINATION_DIR"
+    echo "Created destination directory: $DESTINATION_DIR"
+fi
+
+# Copy the file to the destination directory
+cp "$SOURCE_FILE" "$DESTINATION_DIR/"
+
+# Confirm the operation
+if [[ $? -eq 0 ]]; then
+    echo "Successfully copied 'icon_round.png' to '$DESTINATION_DIR'."
+else
+    echo "Error: Failed to copy 'icon_round.png' to '$DESTINATION_DIR'."
+fi
+
+# ------------------------------------copy and paste proguard-rules.pro to android/app----------------------
+
+
+# Define the source file and destination directory
+SOURCE_FILE="../proguard-rules.pro"
+DESTINATION_DIR="android/app"
+
+# Check if the source file exists
+if [[ ! -f "$SOURCE_FILE" ]]; then
+    echo "Error: Source file 'proguard-rules.pro' does not exist in the current directory."
+    exit 1
+fi
+
+# Create the destination directory if it doesn't exist
+if [[ ! -d "$DESTINATION_DIR" ]]; then
+    mkdir -p "$DESTINATION_DIR"
+    echo "Created destination directory: $DESTINATION_DIR"
+fi
+
+# Copy the file to the destination directory
+cp "$SOURCE_FILE" "$DESTINATION_DIR/"
+
+# Confirm the operation
+if [[ $? -eq 0 ]]; then
+    echo "Successfully copied 'proguard-rules.pro' to '$DESTINATION_DIR'."
+else
+    echo "Error: Failed to copy 'proguard-rules.pro' to '$DESTINATION_DIR'."
+fi
+
+# ------------------------------------copy and past app_icon.png to android/app/src/main/res/drawable directory----------------------
+
+# Define the source file and destination directory
+SOURCE_FILE="../app_icon.png"
+DESTINATION_DIR="android/app/src/main/res/drawable"
+
+# Check if the source file exists
+if [[ ! -f "$SOURCE_FILE" ]]; then
+    echo "Error: Source file 'app_icon.png' does not exist in the current directory."
+    exit 1
+fi
+
+# Create the destination directory if it doesn't exist
+if [[ ! -d "$DESTINATION_DIR" ]]; then
+    mkdir -p "$DESTINATION_DIR"
+    echo "Created destination directory: $DESTINATION_DIR"
+fi
+
+# Copy the file to the destination directory
+cp "$SOURCE_FILE" "$DESTINATION_DIR/"
+
+# Confirm the operation
+if [[ $? -eq 0 ]]; then
+    echo "Successfully copied 'app_icon.png' to '$DESTINATION_DIR'."
+else
+    echo "Error: Failed to copy 'app_icon.png' to '$DESTINATION_DIR'."
+fi
+
+# ------------------------------------copy and past slow_spring_board.mp3 to android/app/src/main/res/raw directory----------------------
+
+# Define the source file and destination directory
+SOURCE_FILE="../slow_spring_board.mp3"
+DESTINATION_DIR="android/app/src/main/res/raw"
+
+# Check if the source file exists
+if [[ ! -f "$SOURCE_FILE" ]]; then
+    echo "Error: Source file 'slow_spring_board.mp3' does not exist in the current directory."
+    exit 1
+fi
+
+# Create the destination directory if it doesn't exist
+if [[ ! -d "$DESTINATION_DIR" ]]; then
+    mkdir -p "$DESTINATION_DIR"
+    echo "Created destination directory: $DESTINATION_DIR"
+fi
+
+# Copy the file to the destination directory
+cp "$SOURCE_FILE" "$DESTINATION_DIR/"
+
+# Confirm the operation
+if [[ $? -eq 0 ]]; then
+    echo "Successfully copied 'slow_spring_board.mp3' to '$DESTINATION_DIR'."
+else
+    echo "Error: Failed to copy 'slow_spring_board.mp3' to '$DESTINATION_DIR'."
+fi
+
+# ------------------------------------copy and past keep.xml to android/app/src/main/res/raw directory----------------------
+
+# Define the source file and destination directory
+SOURCE_FILE="../keep.xml"
+DESTINATION_DIR="android/app/src/main/res/raw"
+
+# Check if the source file exists
+if [[ ! -f "$SOURCE_FILE" ]]; then
+    echo "Error: Source file 'keep.xml' does not exist in the current directory."
+    exit 1
+fi
+
+# Create the destination directory if it doesn't exist
+if [[ ! -d "$DESTINATION_DIR" ]]; then
+    mkdir -p "$DESTINATION_DIR"
+    echo "Created destination directory: $DESTINATION_DIR"
+fi
+
+# Copy the file to the destination directory
+cp "$SOURCE_FILE" "$DESTINATION_DIR/"
+
+# Confirm the operation
+if [[ $? -eq 0 ]]; then
+    echo "Successfully copied 'keep.xml' to '$DESTINATION_DIR'."
+else
+    echo "Error: Failed to copy 'keep.xml' to '$DESTINATION_DIR'."
+fi
+
+# ------------------------------------fix import statement issue in main.dart----------------------
+
+# Define the target file
+TARGET_FILE="lib/main.dart"
+
+# Check if the target file exists
+if [[ ! -f "$TARGET_FILE" ]]; then
+    echo "Error: Target file 'lib/main.dart' does not exist."
+    exit 1
+fi
+
+# Replace all occurrences of '----' with the value of the REPLACEMENT_WORD variable
+sed -i "s/----/${PROJECT_NAME}/g" "$TARGET_FILE"
+
+# Confirm the operation
+if grep -q "${PROJECT_NAME}" "$TARGET_FILE"; then
+    echo "Successfully replaced all occurrences of '----' with '${PROJECT_NAME}' in '$TARGET_FILE'."
+else
+    echo "Error: Replacement did not occur or '----' was not found in '$TARGET_FILE'."
+fi
+
+# ------------------------------------adding permissions to AndroidManifest.xml file----------------------
+
+# Define the target AndroidManifest.xml file path
+TARGET_FILE="android/app/src/main/AndroidManifest.xml"
+
+# Define the permissions to be added
+PERMISSIONS='    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />'
+
+# Check if the target file exists
+if [[ ! -f "$TARGET_FILE" ]]; then
+    echo "Error: AndroidManifest.xml file not found at '$TARGET_FILE'."
+    exit 1
+fi
+
+# Check if the permissions are already present
+if grep -q "android.permission.RECEIVE_BOOT_COMPLETED" "$TARGET_FILE" && grep -q "android.permission.SCHEDULE_EXACT_ALARM" "$TARGET_FILE"; then
+    echo "Permissions already exist in the AndroidManifest.xml file."
+    exit 0
+fi
+
+# Use awk to insert the permissions after the first line
+awk -v permissions="$PERMISSIONS" 'NR==1{print; print permissions; next}1' "$TARGET_FILE" > temp && mv temp "$TARGET_FILE"
+
+# Confirm the operation
+if grep -q "android.permission.RECEIVE_BOOT_COMPLETED" "$TARGET_FILE" && grep -q "android.permission.SCHEDULE_EXACT_ALARM" "$TARGET_FILE"; then
+    echo "Successfully added permissions starting from the second line of the AndroidManifest.xml file."
+else
+    echo "Error: Failed to add permissions to the AndroidManifest.xml file."
+fi
+
+
+# ------------------------------------add reciever for local notifications to AndroidManifest.xml file----------------------
+
+# Define the target AndroidManifest.xml file path
+TARGET_FILE="android/app/src/main/AndroidManifest.xml"
+
+# Define the reciever to be added
+PERMISSIONS='     <!-- flutter local notifications -->
+    <receiver android:exported="false" android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver" />
+    <receiver android:exported="false" android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver">
+        <intent-filter>
+            <action android:name="android.intent.action.BOOT_COMPLETED"/>
+            <action android:name="android.intent.action.MY_PACKAGE_REPLACED"/>
+            <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+            <action android:name="com.htc.intent.action.QUICKBOOT_POWERON"/>
+        </intent-filter>
+    </receiver>'
+
+# Check if the target file exists
+if [[ ! -f "$TARGET_FILE" ]]; then
+    echo "Error: AndroidManifest.xml file not found at '$TARGET_FILE'."
+    exit 1
+fi
+
+# Check if the reciever is already present
+if grep -q "<!-- flutter local notifications -->" "$TARGET_FILE"; then
+    echo "reciever already exists in the AndroidManifest.xml file."
+    exit 0
+fi
+
+# Use awk to insert the permissions after the first line
+awk -v permissions="$PERMISSIONS" 'NR==34{print; print permissions; next}34' "$TARGET_FILE" > temp && mv temp "$TARGET_FILE"
+
+# Confirm the operation
+if grep -q "<!-- flutter local notifications -->" "$TARGET_FILE"; then
+    echo "Successfully added reciever starting from the 34 line of the AndroidManifest.xml file."
+else
+    echo "Error: Failed to add reciever to the AndroidManifest.xml file."
+fi
+
 # ------------------------------------run pub get to get dependencies----------------------
 # Run flutter pub get to fetch the packages
 flutter pub get
